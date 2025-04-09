@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
@@ -13,24 +13,35 @@ export default function TabLayout() {
 
   return (
     <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
+    screenOptions={{
+      tabBarInactiveBackgroundColor: '#454A64',
+      tabBarActiveBackgroundColor: '#454A64',
+      headerShown: true,
+      tabBarButton: HapticTab,
+      tabBarBackground: TabBarBackground,
+      tabBarStyle: Platform.select({
+        ios: {
+          // Use a transparent background on iOS to show the blur effect
+          position: 'absolute',
+          paddingBottom: 0,
+        },
+        default: {
+          paddingBottom: 0,
+        }
+      }),
+      headerStyle: {
+        backgroundColor: '#454A64',
+      },
+      headerTitleStyle: {
+        color: '#fff',
+      }
+    }}>
       <Tabs.Screen
         name="daily"
         options={{
           title: 'Daily',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarActiveTintColor: '#93FF8F'
         }}
       />
       <Tabs.Screen
@@ -38,6 +49,7 @@ export default function TabLayout() {
         options={{
           title: 'Practice',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarActiveTintColor: '#94CFFF'
         }}
       />
       <Tabs.Screen
@@ -45,6 +57,7 @@ export default function TabLayout() {
         options={{
           title: 'Ranking',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarActiveTintColor: '#FFF37E'
         }}
       />
       <Tabs.Screen
@@ -52,8 +65,10 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarActiveTintColor: '#FF7E7E'
         }}
       />
     </Tabs>
+    
   );
 }
