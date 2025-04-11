@@ -29,10 +29,28 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="index" options={{ title: 'Landing', headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack screenOptions={{
+        headerBackButtonDisplayMode: 'minimal',
+        headerBackButtonMenuEnabled: false,
+        headerTintColor: '#fff',
+        headerStyle: {
+          backgroundColor: '#454A64',
+        },
+        headerTitleStyle: {
+          color: '#fff',
+        },
+      }}>
+        <Stack.Screen name="index" options={{
+          title: 'Landing',
+          headerShown: false,
+        }}/>
+        <Stack.Screen name="(tabs)" options={{
+          headerShown: false,
+        }}/>
         <Stack.Screen name="+not-found" />
+        <Stack.Screen name="puzzles/daily-puzzle" options={{
+          title: 'Puzzle',
+        }}/>
       </Stack>
       <StatusBar style="light" />
     </ThemeProvider>

@@ -1,21 +1,24 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import React from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, Pressable, View, StyleSheet, Easing, TouchableOpacity } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const router = useRouter();
 
   return (
-    <Tabs
-    screenOptions={{
+    <Tabs screenOptions={{
+      animation: 'shift',
       tabBarInactiveBackgroundColor: '#454A64',
       tabBarActiveBackgroundColor: '#454A64',
+      tabBarInactiveTintColor: '#CDCDCD',
       headerShown: true,
       tabBarButton: HapticTab,
       tabBarBackground: TabBarBackground,
@@ -40,7 +43,7 @@ export default function TabLayout() {
         name="daily"
         options={{
           title: 'Daily',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name={"calendar"} color={color} />,            
           tabBarActiveTintColor: '#93FF8F'
         }}
       />
@@ -48,7 +51,7 @@ export default function TabLayout() {
         name="practice"
         options={{
           title: 'Practice',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="puzzlepiece.extension" color={color} />,
           tabBarActiveTintColor: '#94CFFF'
         }}
       />
@@ -56,7 +59,7 @@ export default function TabLayout() {
         name="ranking"
         options={{
           title: 'Ranking',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="trophy" color={color} />,
           tabBarActiveTintColor: '#FFF37E'
         }}
       />
@@ -64,11 +67,12 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person" color={color} />,
           tabBarActiveTintColor: '#FF7E7E'
         }}
       />
     </Tabs>
+    
     
   );
 }

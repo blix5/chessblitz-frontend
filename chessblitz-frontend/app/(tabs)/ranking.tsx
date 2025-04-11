@@ -1,6 +1,6 @@
 export default function RankingScreen() {
-    return (
-      <>
-      </>
-    );
-  }
+  return (
+    <>
+    </>
+  );
+}
