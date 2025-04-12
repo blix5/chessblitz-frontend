@@ -26,7 +26,8 @@ export default function DailyPuzzle() {
     const [moves, setMoves] = useState<string[]>([]); // Store the moves
     const [lastFEN, setLastFEN] = useState<string | null>(null); // Store the last FEN
     const [turn, setTurn] = useState<string | null>(null); // Track the turn
-    const [redoUnlocked, setRedoUnlocked] = useState<Number | null>(1); // Track the redo max state
+    const [redoUnlocked, setRedoUnlocked] = useState<number | null>(1); // Track the redo max state
+    const [puzzleCompleted, setPuzzleCompleted] = useState<boolean | null>(false); // Track puzzle completion state
 
     const handleGetHint = async () => {
         try {
@@ -44,12 +45,14 @@ export default function DailyPuzzle() {
 
     // Timer logic
     useEffect(() => {
-        const interval = setInterval(() => {
-            setElapsedTime((prev) => prev + 1);
-        }, 1000);
+        if (!puzzleCompleted) {
+            const interval = setInterval(() => {
+                setElapsedTime((prev) => prev + 1);
+            }, 1000);
 
-        return () => clearInterval(interval);
-    }, []);
+            return () => clearInterval(interval);
+        }
+    }, [puzzleCompleted]);
 
     // Load puzzle and set moves
     const updateMoves = () => {
@@ -77,15 +80,18 @@ export default function DailyPuzzle() {
             }
         }
     }, [chessboardRef.current]);
+    useEffect(() => {
+        setRedoUnlocked(Math.max(moveNumber, redoUnlocked || 0))
+    }, [moveNumber])
 
     const handleFirstMove = () => {
         if (chessboardRef.current) {
             const puzzle = chessboardRef.current.getPuzzle();
             if (puzzle) {
                 setLastFEN(puzzle.FEN); // Set the last FEN
-                chess.move({ from: moves[0].substring(0, 2), to: moves[0].substring(2) }); // Make the first move
+                chess.move({ from: moves[0].substring(0, 2), to: moves[0].substring(2, 4), promotion: moves[0].substring(4) }); // Make the first move
                 setTimeout(async () => {
-                    await chessboardRef.current?.board.move({ from: moves[0].substring(0, 2), to: moves[0].substring(2) });
+                    await chessboardRef.current?.board.move({ from: moves[0].substring(0, 2), to: moves[0].substring(2, 4), promotion: moves[0].substring(4) });
                 }, 500); // Delay the first move by 1 second
             }
         }
@@ -101,6 +107,8 @@ export default function DailyPuzzle() {
             chess.load(chessboardRef.current.getPuzzle().FEN); // Reset the chess board to starting position
             chessboardRef.current.board.resetBoard(chessboardRef.current.getPuzzle().FEN); // Call the reset method on the chessboard
             setMoveNumber(1); // Reset move number
+            setPuzzleCompleted(false);
+            setRedoUnlocked(1);
             setHint(null); // Reset hint
             setLastFEN(chessboardRef.current.getPuzzle().FEN); // Reset last FEN
             setElapsedTime(0); // Reset elapsed time
@@ -117,20 +125,31 @@ export default function DailyPuzzle() {
                 setMoveNumber(moveNumber - 1);
             }
             setLastFEN(chess.fen());
+            setHint(null);
 
             if (moveNumber <= 1) {
-                handleReset(); // Reset if move number is less than 1
+                chess.load(chessboardRef.current.getPuzzle().FEN); // Reset the chess board to starting position
+                chessboardRef.current.board.resetBoard(chessboardRef.current.getPuzzle().FEN); // Call the reset method on the chessboard
+                setMoveNumber(1); // Reset move number
+                setLastFEN(chessboardRef.current.getPuzzle().FEN); // Reset last FEN
+
+                handleFirstMove(); // Make the first move
             } else {
                 chessboardRef.current.board.resetBoard(chess.fen()); // Call the reset method on the chessboard
-                setHint(null); // Reset hint
                 setTurn(getTurnFromFEN(chessboardRef.current.getPuzzle().FEN)); // Reset turn
             }
             
         }
     };
     const handleRedo = () => {
-        if (chessboardRef.current) {
-            
+        if (chessboardRef.current && redoUnlocked !== null) {
+            if (moveNumber < redoUnlocked) {
+                setTimeout(async () => {
+                    await chessboardRef.current?.board.move({ from: moves[moveNumber * 2 - 1].substring(0, 2),
+                            to: moves[moveNumber * 2 - 1].substring(2, 4),
+                            promotion: moves[moveNumber * 2 - 1].substring(4) });
+                }), (200);
+            }
         }
     };
 
@@ -163,20 +182,26 @@ export default function DailyPuzzle() {
                     if(getTurnFromFEN(state.fen) === turn) {
                         const detectedMove = detectMoveFromFEN(lastFEN, state.fen);
                         if (detectedMove) {
-                            chess.move({ from: detectedMove.substring(0, 2), to: detectedMove.substring(2) }); // Make the move
+                            chess.move({ from: detectedMove.substring(0, 2), to: detectedMove.substring(2, 4), promotion: detectedMove.substring(4) }); // Make the move
                         }
                         if (moves[moveNumber * 2 - 1] == detectMoveFromFEN(lastFEN, state.fen)) {
                             setHint(null); // Clear hint if the move is correct
 
                             if (moveNumber >= moves.length / 2) {
                                 setHint('Congratulations! You completed the puzzle!'); // Show success message
+                                setRedoUnlocked(moveNumber + 1);
+                                setPuzzleCompleted(true);
                             } else {
                                 setMoveNumber(moveNumber + 1); // Increment move number
                                 setHint('Great job! Keep going!'); // Show success message for correct move
                                 setTimeout(async () => {
-                                    chess.move({ from: moves[moveNumber * 2].substring(0, 2), to: moves[moveNumber * 2].substring(2) }); // Make the next move
-                                    await chessboardRef.current?.board.move({ from: moves[moveNumber * 2].substring(0, 2), to: moves[moveNumber * 2].substring(2) });
-                                }), (500);
+                                    chess.move({ from: moves[moveNumber * 2].substring(0, 2),
+                                            to: moves[moveNumber * 2].substring(2, 4),
+                                            promotion: moves[moveNumber * 2].substring(4) }); // Make the next move
+                                    await chessboardRef.current?.board.move({ from: moves[moveNumber * 2].substring(0, 2),
+                                            to: moves[moveNumber * 2].substring(2, 4),
+                                            promotion: moves[moveNumber * 2].substring(4) });
+                                }), (700);
                             }
                         } else {
                             setHint('Try again!'); // Show error message if the move is incorrect
@@ -206,7 +231,7 @@ export default function DailyPuzzle() {
             <ThemedText style={{color: '#fff', position:'absolute', top: 5, left: 5}}>
                 {`BEST: ${moves[2 * moveNumber - 1]}\n`}
                 {`TURN: ${getTurnFromFEN(lastFEN)}\n`}
-                {`MOVE: ${moveNumber}`}
+                {`MOVE: ${moveNumber}\n`}
             </ThemedText>
 
             <ThemedView style={styles.controlBar}>

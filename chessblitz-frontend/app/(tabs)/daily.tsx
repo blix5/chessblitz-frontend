@@ -22,7 +22,7 @@ export default function DailyScreen() {
             Daily Puzzle #x:
           </ThemedText>
           <ThemedText style={styles.dailyPuzzleButtonSplash}>
-            example title ts pmo
+            example title
           </ThemedText>
         </Pressable>
 
